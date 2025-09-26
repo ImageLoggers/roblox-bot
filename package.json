@@ -1,17 +1,16 @@
 {
-  "name": "roblox-bot",
+  "name": "roblox-discord-bot",
   "version": "1.0.0",
-  "description": "A Roblox bot that joins a game, monitors player count, and integrates with Discord",
+  "description": "A Roblox bot that integrates with Discord",
   "main": "bot.js",
-  "dependencies": {
-    "noblox.js": "^4.16.0",
-    "axios": "^1.6.7",
-    "open": "^9.1.0"
-  },
-  "devDependencies": {},
   "scripts": {
     "start": "node bot.js"
   },
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "noblox.js": "^4.16.0",
+    "axios": "^1.6.7",
+    "open": "^9.1.0"
+  }
 }
