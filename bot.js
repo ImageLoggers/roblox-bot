@@ -11,7 +11,7 @@ const discordWebhookURL = 'https://discord.com/api/webhooks/1421088738515226664/
 function getGameIdFromLink(gameLink) {
     const parts = gameLink.split('/');
     const gameId = parts[5];
-    return gameId;
+    console.log('Extracted gameId:', gameId);  // Add this line to check the extracted gameId
     return gameId;
 }
 
@@ -21,22 +21,35 @@ let currentServerPlayers = [];
 // Function to join a Roblox game (no open)
 async function joinRobloxGame(placeId) {
     try {
-        // Get a list of available game servers
         const response = await axios.get(`https://games.roblox.com/v1/games/${placeId}/servers/Public?sortOrder=Asc&limit=100`);
         const servers = response.data.data;
 
         if (servers.length > 0) {
-            // Choose the first server in the list (you might want to implement more sophisticated logic)
             const serverId = servers[0].id;
-
             console.log(`Attempting to join game server: ${serverId}`);
-            return serverId; // Return the serverId for later use
+            return serverId;
         } else {
             console.log('No available game servers found.');
             return null;
         }
     } catch (error) {
         console.error('Failed to join game:', error);
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Data:", error.response.data);
+            console.error("Status:", error.response.status);
+            console.error("Headers:", error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.error("Request:", error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error message:', error.message);
+        }
+        console.error("Config:", error.config);
         return null;
     }
 }
