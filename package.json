@@ -9,7 +9,7 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "noblox.js": "^6.2.0",
+    "noblox.js": "latest",
     "axios": "^1.6.7",
     "open": "^9.1.0"
   }
