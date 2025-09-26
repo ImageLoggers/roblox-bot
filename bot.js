@@ -7,46 +7,62 @@ const robloxSecurityCookie = '_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-a
 const gameLink = 'https://www.roblox.com/games/109983668079237/Steal-a-Brainrot';
 const discordWebhookURL = 'https://discord.com/api/webhooks/1421088738515226664/xvMAu1YTNQW2nH8VCtulNvEZi9S4XuSNCHCQutKOAaXQBH4q4qGs_f4M3WRLIFUFlsAz'; // Your Discord Webhook URL
 
+// Function to delay execution
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Extract game ID from the link
 function getGameIdFromLink(gameLink) {
     const parts = gameLink.split('/');
     const gameId = parts[5];
-    console.log('Extracted gameId:', gameId);  // Add this line to check the extracted gameId
+    console.log('Extracted gameId:', gameId);
     return gameId;
 }
 
 const gameId = getGameIdFromLink(gameLink);
 let currentServerPlayers = [];
 
+// Create an Axios instance with a custom User-Agent header
+const axiosInstance = axios.create({
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    },
+    withCredentials: true // Ensure cookies are sent with requests
+});
+
 // Function to join a Roblox game (no open)
 async function joinRobloxGame(placeId) {
     try {
-        const response = await axios.get(`https://games.roblox.com/v1/games/${placeId}/servers/Public?sortOrder=Asc&limit=100`);
-        const servers = response.data.data;
+        await delay(1000); // Add a 1-second delay
 
-        if (servers.length > 0) {
-            const serverId = servers[0].id;
-            console.log(`Attempting to join game server: ${serverId}`);
-            return serverId;
+        const response = await axiosInstance.get(`https://games.roblox.com/v1/games/${placeId}/servers/Public?sortOrder=Asc&limit=100`);
+
+        if (response.status === 200) {
+            const servers = response.data.data;
+
+            if (servers.length > 0) {
+                const serverId = servers[0].id;
+                console.log(`Attempting to join game server: ${serverId}`);
+                return serverId;
+            } else {
+                console.log('No available game servers found.');
+                return null;
+            }
         } else {
-            console.log('No available game servers found.');
+            console.error(`Failed to get servers. Status code: ${response.status}`);
+            console.error("Data:", response.data);
             return null;
         }
     } catch (error) {
         console.error('Failed to join game:', error);
         if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             console.error("Data:", error.response.data);
             console.error("Status:", error.response.status);
             console.error("Headers:", error.response.headers);
         } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             console.error("Request:", error.request);
         } else {
-            // Something happened in setting up the request that triggered an Error
             console.error('Error message:', error.message);
         }
         console.error("Config:", error.config);
@@ -57,7 +73,7 @@ async function joinRobloxGame(placeId) {
 // Function to send a message to Discord
 async function sendDiscordMessage(message) {
     try {
-        await axios.post(discordWebhookURL, {
+        await axiosInstance.post(discordWebhookURL, {
             content: message
         });
         console.log('Sent message to Discord:', message);
@@ -69,7 +85,7 @@ async function sendDiscordMessage(message) {
 // Function to get players in the server
 async function getPlayersInServer(placeId, serverId) {
     try {
-        const response = await axios.get(`https://games.roblox.com/v1/games/${placeId}/servers/${serverId}`);
+        const response = await axiosInstance.get(`https://games.roblox.com/v1/games/${placeId}/servers/${serverId}`);
         const players = response.data.playerTokens;
         return players;
     } catch (error) {
